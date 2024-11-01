@@ -1,3 +1,3 @@
-# JzNotes
+# JzRM
 
-A markdown note software in web.
+A remote markdown note software in web.
