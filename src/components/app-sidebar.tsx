@@ -19,12 +19,26 @@ import { NavProjects } from '@/components/nav-projects';
 import { NavUser } from '@/components/nav-user';
 import { TeamSwitcher } from '@/components/team-switcher';
 import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator
+} from '@/components/ui/breadcrumb';
+import { Separator } from '@/components/ui/separator';
+import {
     Sidebar,
     SidebarContent,
     SidebarFooter,
     SidebarHeader,
-    SidebarRail
+    SidebarInset,
+    SidebarProvider,
+    SidebarRail,
+    SidebarTrigger
 } from '@/components/ui/sidebar';
+import SearchInput from './search-input';
+import ThemeToggle from './theme-toggle';
 
 // This is sample data.
 const data = {
@@ -156,20 +170,66 @@ const data = {
     ]
 };
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({ children }: { children: React.ReactNode }) {
+    const [mounted, setMounted] = React.useState(false);
+
+    // Only render after first client-side mount
+    React.useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    if (!mounted) {
+        return null; // or a loading skeleton
+    }
+
     return (
-        <Sidebar collapsible="icon" {...props}>
-            <SidebarHeader>
-                <TeamSwitcher teams={data.teams} />
-            </SidebarHeader>
-            <SidebarContent>
-                <NavMain items={data.navMain} />
-                <NavProjects projects={data.projects} />
-            </SidebarContent>
-            <SidebarFooter>
-                <NavUser user={data.user} />
-            </SidebarFooter>
-            <SidebarRail />
-        </Sidebar>
+        <SidebarProvider>
+            <Sidebar collapsible="icon">
+                <SidebarHeader>
+                    <TeamSwitcher teams={data.teams} />
+                </SidebarHeader>
+                <SidebarContent>
+                    <NavMain items={data.navMain} />
+                    <NavProjects projects={data.projects} />
+                </SidebarContent>
+                <SidebarFooter>
+                    <NavUser user={data.user} />
+                </SidebarFooter>
+                <SidebarRail />
+            </Sidebar>
+            <SidebarInset>
+                <header className="flex h-16 shrink-0 items-center justify-between gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+                    <div className="flex items-center gap-2 px-4">
+                        <SidebarTrigger className="-ml-1" />
+                        <Separator
+                            orientation="vertical"
+                            className="mr-2 h-4"
+                        />
+                        <Breadcrumb>
+                            <BreadcrumbList>
+                                <BreadcrumbItem className="hidden md:block">
+                                    <BreadcrumbLink href="#">
+                                        Building Your Application
+                                    </BreadcrumbLink>
+                                </BreadcrumbItem>
+                                <BreadcrumbSeparator className="hidden md:block" />
+                                <BreadcrumbItem>
+                                    <BreadcrumbPage>
+                                        Data Fetching
+                                    </BreadcrumbPage>
+                                </BreadcrumbItem>
+                            </BreadcrumbList>
+                        </Breadcrumb>
+                    </div>
+                    <div className=" hidden w-1/3 items-center gap-2 px-4 md:flex ">
+                        <SearchInput />
+                    </div>
+                    <div className="flex items-center gap-2 px-4">
+                        <ThemeToggle />
+                    </div>
+                </header>
+                {children}
+            </SidebarInset>
+        </SidebarProvider>
     );
 }
