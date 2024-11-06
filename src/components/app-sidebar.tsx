@@ -14,10 +14,9 @@ import {
 } from 'lucide-react';
 import * as React from 'react';
 
-import { NavMain } from '@/components/nav-main';
-import { NavProjects } from '@/components/nav-projects';
-import { NavUser } from '@/components/nav-user';
-import { TeamSwitcher } from '@/components/team-switcher';
+import { AppSidebarBody } from '@/components/app-sidebar-body';
+import { AppSidebarFooter } from '@/components/app-sidebar-footer';
+import { AppSidebarHeader } from '@/components/app-siderbar-header';
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -34,8 +33,7 @@ import {
     SidebarHeader,
     SidebarInset,
     SidebarProvider,
-    SidebarRail,
-    SidebarTrigger
+    SidebarRail
 } from '@/components/ui/sidebar';
 import SearchInput from './search-input';
 import ThemeToggle from './theme-toggle';
@@ -186,25 +184,21 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
         <SidebarProvider>
             <Sidebar collapsible="icon">
                 <SidebarHeader>
-                    <TeamSwitcher teams={data.teams} />
+                    <AppSidebarHeader teams={data.teams} />
                 </SidebarHeader>
-                <SidebarContent>
-                    <NavMain items={data.navMain} />
-                    <NavProjects projects={data.projects} />
+                <Separator orientation="horizontal" />
+                <SidebarContent className="p-2">
+                    <AppSidebarBody items={data.navMain} />
                 </SidebarContent>
+                <Separator orientation="horizontal" />
                 <SidebarFooter>
-                    <NavUser user={data.user} />
+                    <AppSidebarFooter user={data.user} />
                 </SidebarFooter>
                 <SidebarRail />
             </Sidebar>
             <SidebarInset>
-                <header className="flex h-16 shrink-0 items-center justify-between gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+                <header className="flex h-12 shrink-0 items-center justify-between gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
                     <div className="flex items-center gap-2 px-4">
-                        <SidebarTrigger className="-ml-1" />
-                        <Separator
-                            orientation="vertical"
-                            className="mr-2 h-4"
-                        />
                         <Breadcrumb>
                             <BreadcrumbList>
                                 <BreadcrumbItem className="hidden md:block">
@@ -228,6 +222,7 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
                         <ThemeToggle />
                     </div>
                 </header>
+                <Separator orientation="horizontal" className="mb-2" />
                 {children}
             </SidebarInset>
         </SidebarProvider>
