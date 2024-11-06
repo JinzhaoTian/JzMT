@@ -15,8 +15,11 @@ import {
 import * as React from 'react';
 
 import { AppSidebarBody } from '@/components/app-sidebar-body';
-import { AppSidebarFooter } from '@/components/app-sidebar-footer';
 import { AppSidebarHeader } from '@/components/app-siderbar-header';
+import { NavMain } from '@/components/nav-main';
+import { NavUser } from '@/components/nav-user';
+import { TeamSwitcher } from '@/components/team-switcher';
+import { ThemeToggle } from '@/components/theme-toggle';
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -33,10 +36,9 @@ import {
     SidebarHeader,
     SidebarInset,
     SidebarProvider,
-    SidebarRail
+    SidebarRail,
+    SidebarTrigger
 } from '@/components/ui/sidebar';
-import SearchInput from './search-input';
-import ThemeToggle from './theme-toggle';
 
 // This is sample data.
 const data = {
@@ -182,23 +184,35 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
 
     return (
         <SidebarProvider>
-            <Sidebar collapsible="icon">
-                <SidebarHeader>
-                    <AppSidebarHeader teams={data.teams} />
-                </SidebarHeader>
-                <Separator orientation="horizontal" />
-                <SidebarContent className="p-2">
-                    <AppSidebarBody items={data.navMain} />
-                </SidebarContent>
-                <Separator orientation="horizontal" />
-                <SidebarFooter>
-                    <AppSidebarFooter user={data.user} />
-                </SidebarFooter>
-                <SidebarRail />
+            <Sidebar
+                collapsible="icon"
+                className="overflow-hidden [&>[data-sidebar=sidebar]]:flex-row"
+            >
+                <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground !w-[calc(var(--sidebar-width-icon)_+_1px)] border-r">
+                    <SidebarHeader>
+                        <TeamSwitcher teams={data.teams} />
+                    </SidebarHeader>
+                    <SidebarContent>
+                        <NavMain items={data.navMain} />
+                    </SidebarContent>
+                    <SidebarFooter>
+                        <NavUser user={data.user} />
+                    </SidebarFooter>
+                    <SidebarRail />
+                </div>
+                <div className="h-full w-[--sidebar-width] flex-col bg-sidebar text-sidebar-foreground hidden flex-1 md:flex">
+                    <SidebarHeader>
+                        <AppSidebarHeader teams={data.teams} />
+                    </SidebarHeader>
+                    <SidebarContent>
+                        <AppSidebarBody items={data.navMain} />
+                    </SidebarContent>
+                </div>
             </Sidebar>
             <SidebarInset>
                 <header className="flex h-12 shrink-0 items-center justify-between gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
                     <div className="flex items-center gap-2 px-4">
+                        <SidebarTrigger />
                         <Breadcrumb>
                             <BreadcrumbList>
                                 <BreadcrumbItem className="hidden md:block">
@@ -214,9 +228,6 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
                                 </BreadcrumbItem>
                             </BreadcrumbList>
                         </Breadcrumb>
-                    </div>
-                    <div className=" hidden w-1/3 items-center gap-2 px-4 md:flex ">
-                        <SearchInput />
                     </div>
                     <div className="flex items-center gap-2 px-4">
                         <ThemeToggle />
