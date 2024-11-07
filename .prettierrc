@@ -10,5 +10,6 @@
     "useTabs": false,
     "trailingComma": "none",
     "singleQuote": true,
+    "endOfLine": "lf",
     "tabWidth": 4
 }
