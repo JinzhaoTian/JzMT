@@ -19,7 +19,7 @@ export function NavHeader({
     }[];
 }) {
     return (
-        <SidebarMenu>
+        <SidebarMenu className="flex flex-row h-full items-center">
             <SidebarMenuItem>
                 <SidebarMenuButton size="lg" asChild className="md:h-8 md:p-0">
                     <a href="#">

@@ -198,7 +198,7 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
                     collapsible="none"
                     className="!w-[calc(var(--sidebar-width-icon)_+_1px)] border-r"
                 >
-                    <SidebarHeader>
+                    <SidebarHeader className="h-16">
                         <NavHeader teams={data.teams} />
                     </SidebarHeader>
                     <SidebarContent>
@@ -215,7 +215,7 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
                 {/* This is the second sidebar */}
                 {/* We disable collapsible and let it fill remaining space */}
                 <Sidebar collapsible="none" className="hidden flex-1 md:flex">
-                    <SidebarHeader className="gap-3.5 border-b p-4">
+                    <SidebarHeader className="h-16 gap-3.5 border-b p-4">
                         <AppSidebarHeader />
                     </SidebarHeader>
                     <SidebarContent>
@@ -224,8 +224,8 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
                 </Sidebar>
             </Sidebar>
             <SidebarInset>
-                <header className="sticky top-0 flex shrink-0 items-center gap-2 border-b bg-background p-4">
-                    <SidebarTrigger className="-ml-1" />
+                <header className="sticky top-0 flex h-16 shrink-0 items-center gap-2 border-b bg-background p-4">
+                    <SidebarTrigger />
                     <Separator orientation="vertical" className="mr-2 h-4" />
                     <Breadcrumb>
                         <BreadcrumbList>
