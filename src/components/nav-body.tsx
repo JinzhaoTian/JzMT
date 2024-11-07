@@ -1,17 +1,20 @@
 'use client';
 
 import { type LucideIcon } from 'lucide-react';
+import * as React from 'react';
 
 import {
     SidebarGroup,
     SidebarGroupContent,
     SidebarMenu,
     SidebarMenuButton,
-    SidebarMenuItem
+    SidebarMenuItem,
+    useSidebar
 } from '@/components/ui/sidebar';
 
-export function NavMain({
-    items
+export function NavBody({
+    items,
+    onClick
 }: {
     items: {
         title: string;
@@ -23,7 +26,11 @@ export function NavMain({
             url: string;
         }[];
     }[];
+    onClick: (item: { title: string; url: string }) => void;
 }) {
+    const [activeItem, setActiveItem] = React.useState(items[0]);
+    const { setOpen } = useSidebar();
+
     return (
         <SidebarGroup>
             <SidebarGroupContent className="px-1.5 md:px-0">
@@ -31,8 +38,19 @@ export function NavMain({
                     {items.map((item) => (
                         <SidebarMenuItem key={item.title}>
                             <SidebarMenuButton
-                                tooltip={item.title}
-                                size="default"
+                                tooltip={{
+                                    children: item.title,
+                                    hidden: false
+                                }}
+                                onClick={() => {
+                                    setActiveItem(item);
+                                    onClick({
+                                        title: item.title,
+                                        url: item.url
+                                    });
+                                    setOpen(true);
+                                }}
+                                isActive={activeItem.title === item.title}
                                 className="px-2.5 md:px-2"
                             >
                                 {item.icon && <item.icon />}

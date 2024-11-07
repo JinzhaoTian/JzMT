@@ -1,29 +1,19 @@
 'use client';
 
-import * as React from 'react';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 
-import {
-    SidebarMenu,
-    SidebarMenuItem,
-    SidebarTrigger
-} from '@/components/ui/sidebar';
-
-export function AppSidebarHeader({
-    teams
-}: {
-    teams: {
-        name: string;
-        logo: React.ElementType;
-        plan: string;
-    }[];
-}) {
+export function AppSidebarHeader() {
     return (
-        <SidebarMenu>
-            <SidebarMenuItem>
-                <div className="flex size-8 items-center justify-center rounded-lg ">
-                    <SidebarTrigger />
-                </div>
-            </SidebarMenuItem>
-        </SidebarMenu>
+        <div className="flex w-full items-center justify-between">
+            <div className="text-base font-medium text-foreground">
+                {/* {activeItem.title} */}
+                Inbox
+            </div>
+            <Label className="flex items-center gap-2 text-sm">
+                <span>Unreads</span>
+                <Switch className="shadow-none" />
+            </Label>
+        </div>
     );
 }

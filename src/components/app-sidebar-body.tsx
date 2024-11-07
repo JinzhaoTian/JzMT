@@ -1,36 +1,38 @@
 'use client';
 
-import { type LucideIcon } from 'lucide-react';
-
-import {
-    SidebarGroup,
-    SidebarGroupContent,
-    SidebarMenu
-} from '@/components/ui/sidebar';
+import { SidebarGroup, SidebarGroupContent } from '@/components/ui/sidebar';
 
 export function AppSidebarBody({
     items
 }: {
     items: {
-        title: string;
-        url: string;
-        icon?: LucideIcon;
-        isActive?: boolean;
-        items?: {
-            title: string;
-            url: string;
-        }[];
+        name: string;
+        email: string;
+        subject: string;
+        date: string;
+        teaser: string;
     }[];
 }) {
     return (
-        <SidebarMenu>
-            <SidebarGroup>
+        <SidebarGroup className="px-0">
+            <SidebarGroupContent>
                 {items.map((item) => (
-                    <SidebarGroupContent key={item.title}>
-                        <div>{item.title}</div>
-                    </SidebarGroupContent>
+                    <a
+                        href="#"
+                        key={item.email}
+                        className="flex flex-col items-start gap-2 whitespace-nowrap border-b p-4 text-sm leading-tight last:border-b-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                    >
+                        <div className="flex w-full items-center gap-2">
+                            <span>{item.name}</span>{' '}
+                            <span className="ml-auto text-xs">{item.date}</span>
+                        </div>
+                        <span className="font-medium">{item.subject}</span>
+                        <span className="line-clamp-2 w-[260px] whitespace-break-spaces text-xs">
+                            {item.teaser}
+                        </span>
+                    </a>
                 ))}
-            </SidebarGroup>
-        </SidebarMenu>
+            </SidebarGroupContent>
+        </SidebarGroup>
     );
 }
