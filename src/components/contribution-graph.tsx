@@ -38,7 +38,7 @@ export const ContributionsGraph = () => {
     const contributions = getContributionsForGraph();
 
     return (
-        <TooltipProvider delayDuration={0} skipDelayDuration={0}>
+        <TooltipProvider delayDuration={0}>
             <div className="border rounded-sm p-4 pt-2">
                 <div className="grid grid-flow-col grid-rows-[auto, repeat(8,_10px)] grid-cols-[auto, repeat(54,_10px)] gap-1">
                     <div className="grid grid-rows-[repeat(8,_10px)] grid-cols-[repeat(1,_20px)] gap-1 col-span-1 row-span-8 pt-1">
