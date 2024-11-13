@@ -188,9 +188,10 @@ export function AppEditor() {
 
     return (
         <ScrollArea className="h-full w-full bg-gray-100 border border-green-300">
-            <div className="flex justify-center p-16 pt-2">
-                <EditorContent editor={editor} />
-            </div>
+            <EditorContent
+                editor={editor}
+                className="flex justify-center p-16 pt-2"
+            />
         </ScrollArea>
     );
 }
