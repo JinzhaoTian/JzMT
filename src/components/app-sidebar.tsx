@@ -23,18 +23,8 @@ import {
     SidebarFooter,
     SidebarHeader,
     SidebarInset,
-    SidebarProvider,
-    SidebarTrigger
+    SidebarProvider
 } from '@/components/ui/sidebar';
-import { Separator } from '@radix-ui/react-separator';
-import {
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbLink,
-    BreadcrumbList,
-    BreadcrumbPage,
-    BreadcrumbSeparator
-} from './ui/breadcrumb';
 
 // This is sample data
 const data = {
@@ -223,26 +213,7 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
                     </SidebarContent>
                 </Sidebar>
             </Sidebar>
-            <SidebarInset>
-                <header className="sticky top-0 flex h-16 shrink-0 items-center gap-2 border-b bg-background p-4">
-                    <SidebarTrigger />
-                    <Separator orientation="vertical" className="mr-2 h-4" />
-                    <Breadcrumb>
-                        <BreadcrumbList>
-                            <BreadcrumbItem className="hidden md:block">
-                                <BreadcrumbLink href="#">
-                                    All Inboxes
-                                </BreadcrumbLink>
-                            </BreadcrumbItem>
-                            <BreadcrumbSeparator className="hidden md:block" />
-                            <BreadcrumbItem>
-                                <BreadcrumbPage>Inbox</BreadcrumbPage>
-                            </BreadcrumbItem>
-                        </BreadcrumbList>
-                    </Breadcrumb>
-                </header>
-                {children}
-            </SidebarInset>
+            <SidebarInset>{children}</SidebarInset>
         </SidebarProvider>
     );
 }

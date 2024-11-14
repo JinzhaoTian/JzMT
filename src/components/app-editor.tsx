@@ -1,8 +1,7 @@
 'use client';
 
 import { ScrollArea } from '@/components/ui/scroll-area';
-import Highlight from '@tiptap/extension-highlight';
-import Typography from '@tiptap/extension-typography';
+import Document from '@tiptap/extension-document';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 
@@ -176,9 +175,8 @@ const text = `# 参考文献标准
 
 export function AppEditor() {
     const editor = useEditor({
-        extensions: [StarterKit, Highlight, Typography],
+        extensions: [Document, StarterKit],
         content: text,
-        autofocus: true,
         editorProps: {
             attributes: {
                 class: 'max-w-[800px] focus:outline-none'
@@ -187,7 +185,7 @@ export function AppEditor() {
     });
 
     return (
-        <ScrollArea className="h-full w-full bg-gray-100 border border-green-300">
+        <ScrollArea className="h-full w-full">
             <EditorContent
                 editor={editor}
                 className="flex justify-center p-16 pt-2"
