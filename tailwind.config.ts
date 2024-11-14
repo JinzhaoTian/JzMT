@@ -67,7 +67,16 @@ const config: Config = {
             borderRadius: {
                 lg: 'var(--radius)',
                 md: 'calc(var(--radius) - 2px)',
-                sm: 'calc(var(--radius) - 4px)'
+                sm: 'calc(var(--radius) - 4px)',
+                xm: 'calc(var(--radius) - 6px)'
+            },
+            gridTemplateColumns: {
+                '53': 'repeat(53, minmax(0, 1fr))',
+                '54': 'repeat(54, minmax(0, 1fr))'
+            },
+            gridTemplateRows: {
+                '7': 'repeat(7, minmax(0, 1fr))',
+                '8': 'repeat(8, minmax(0, 1fr))'
             }
         }
     },
