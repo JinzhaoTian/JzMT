@@ -28,11 +28,13 @@ export default function Home() {
                     <Breadcrumb>
                         <BreadcrumbList>
                             <BreadcrumbItem className="hidden md:block">
-                                <BreadcrumbLink href="#">All</BreadcrumbLink>
+                                <BreadcrumbLink href="#">
+                                    Repository
+                                </BreadcrumbLink>
                             </BreadcrumbItem>
                             <BreadcrumbSeparator className="hidden md:block" />
                             <BreadcrumbItem>
-                                <BreadcrumbPage>Current</BreadcrumbPage>
+                                <BreadcrumbPage>Document</BreadcrumbPage>
                             </BreadcrumbItem>
                         </BreadcrumbList>
                     </Breadcrumb>
