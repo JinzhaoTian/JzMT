@@ -5,7 +5,7 @@ import { exampleText } from '@/contexts/example-text';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 
-export function AppEditor() {
+export function TipTapEditor() {
     const editor = useEditor({
         extensions: [StarterKit],
         content: exampleText,

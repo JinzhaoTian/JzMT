@@ -1,5 +1,5 @@
-import { AppEditor } from '@/components/app-editor';
 import { AppSidebar } from '@/components/app-sidebar';
+import { TipTapEditor } from '@/components/editor/tiptap-editor';
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -53,7 +53,7 @@ export default function Home() {
                     </DropdownMenu>
                 </div>
                 <div className="h-[calc(100vh-6rem)] w-full overflow-hidden">
-                    <AppEditor />
+                    <TipTapEditor />
                 </div>
                 <div className="h-8 w-full" />
             </main>
