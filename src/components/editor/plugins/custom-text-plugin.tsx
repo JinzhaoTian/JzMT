@@ -4,7 +4,7 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 
-const CustomTextPlugin = () => {
+export default function CustomTextPlugin() {
     const [editor] = useLexicalComposerContext();
 
     return (
@@ -16,7 +16,7 @@ const CustomTextPlugin = () => {
             }}
         >
             <div className="flex justify-center p-20 pt-2">
-                <div className="relative w-full">
+                <div className="relative w-[60rem]">
                     <RichTextPlugin
                         contentEditable={
                             <ContentEditable className="max-w-[60rem] outline-none font-editor" />
@@ -32,6 +32,4 @@ const CustomTextPlugin = () => {
             </div>
         </ScrollArea>
     );
-};
-
-export default CustomTextPlugin;
+}

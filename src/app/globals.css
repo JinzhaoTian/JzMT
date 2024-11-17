@@ -85,4 +85,14 @@ body {
     body {
         @apply bg-background text-foreground;
     }
+
+    /* Editor Theme */
+    ol > li::marker,
+    ul > li::marker {
+        @apply text-gray-400;
+    }
+
+    li {
+        @apply text-base text-black;
+    }
 }
