@@ -19,7 +19,10 @@ export default function CustomTextPlugin() {
                 <div className="relative w-[60rem]">
                     <RichTextPlugin
                         contentEditable={
-                            <ContentEditable className="max-w-[60rem] outline-none font-editor" />
+                            <ContentEditable
+                                className="max-w-[60rem] outline-none font-editor"
+                                spellCheck={false}
+                            />
                         }
                         placeholder={
                             <div className="absolute top-0 left-0 font-editor pointer-events-none text-gray-400">
