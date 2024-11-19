@@ -40,9 +40,9 @@ export default function CustomMarkdownPlugin() {
 
                     if (lastLineKey === parentNodeKey) return;
 
-                    editor.update(() => processCurrentNode(parentNodeKey));
+                    editor.update(() => $processCurrentNode(parentNodeKey));
 
-                    editor.update(() => processLastNode(lastLineKey));
+                    editor.update(() => $processLastNode(lastLineKey));
 
                     setLastLineKey(parentNodeKey);
                 });
@@ -59,7 +59,7 @@ export default function CustomMarkdownPlugin() {
     return null;
 }
 
-const processLastNode = (lastNodeKey: string | null) => {
+const $processLastNode = (lastNodeKey: string | null) => {
     if (!lastNodeKey) return;
 
     const lastLineNode = $getNodeByKey(lastNodeKey);
@@ -72,7 +72,7 @@ const processLastNode = (lastNodeKey: string | null) => {
     }
 };
 
-const processCurrentNode = (currentNodeKey: string | null) => {
+const $processCurrentNode = (currentNodeKey: string | null) => {
     if (!currentNodeKey) return;
 
     const currentLineNode = $getNodeByKey(currentNodeKey);
