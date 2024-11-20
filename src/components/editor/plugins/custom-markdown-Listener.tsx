@@ -11,7 +11,7 @@ import {
     TextNode
 } from 'lexical';
 
-export default function CustomMarkdownPlugin() {
+export default function CustomMarkdownListener() {
     const [editor] = useLexicalComposerContext();
     const [lastLineKey, setLastLineKey] = useState<string | null>(null);
 
