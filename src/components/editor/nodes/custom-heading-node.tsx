@@ -1,14 +1,17 @@
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import {
-    HeadingNode,
-    HeadingTagType,
-    SerializedHeadingNode
-} from '@lexical/rich-text';
+import { HeadingTagType } from '@lexical/rich-text';
 import {
     $getSelection,
     $isRangeSelection,
+    DOMExportOutput,
     EditorConfig,
-    LexicalNode
+    ElementNode,
+    LexicalEditor,
+    LexicalNode,
+    NodeKey,
+    SerializedElementNode,
+    Spread,
+    isHTMLElement
 } from 'lexical';
 import React, { useEffect, useState } from 'react';
 
@@ -41,13 +44,28 @@ const HeadingDecorator: React.FC<HeadingDecoratorProps> = ({ nodeKey }) => {
     return isVisible ? <span className="heading-hash">#</span> : null;
 };
 
-interface SerializedCustomHeadingNode extends SerializedHeadingNode {
-    type: 'custom-heading'; // Ensure a unique type for your custom node
-}
+export type SerializedCustomHeadingNode = Spread<
+    {
+        tag: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
+    },
+    SerializedElementNode
+>;
 
-export class CustomHeadingNode extends HeadingNode {
-    static getType() {
+export class CustomHeadingNode extends ElementNode {
+    /** @internal */
+    __tag: HeadingTagType;
+
+    constructor(tag: HeadingTagType, key?: NodeKey) {
+        super(key);
+        this.__tag = tag;
+    }
+
+    static getType(): string {
         return 'custom-heading';
+    }
+
+    getTag(): HeadingTagType {
+        return this.__tag;
     }
 
     static clone(node: CustomHeadingNode): CustomHeadingNode {
@@ -55,9 +73,10 @@ export class CustomHeadingNode extends HeadingNode {
     }
 
     createDOM(config: EditorConfig) {
-        const dom = super.createDOM(config);
-        dom.classList.add('custom-heading');
-        return dom;
+        const tag = this.__tag;
+        const element = document.createElement(tag);
+        element.className = 'custom-heading';
+        return element;
     }
 
     // 根据 # 的数量动态调整标签
@@ -87,6 +106,28 @@ export class CustomHeadingNode extends HeadingNode {
         return false;
     }
 
+    exportDOM(editor: LexicalEditor): DOMExportOutput {
+        const { element } = super.exportDOM(editor);
+
+        if (element && isHTMLElement(element)) {
+            if (this.isEmpty()) {
+                element.append(document.createElement('br'));
+            }
+
+            const formatType = this.getFormatType();
+            element.style.textAlign = formatType;
+
+            const direction = this.getDirection();
+            if (direction) {
+                element.dir = direction;
+            }
+        }
+
+        return {
+            element
+        };
+    }
+
     static importJSON(
         serializedNode: SerializedCustomHeadingNode
     ): CustomHeadingNode {
@@ -97,13 +138,16 @@ export class CustomHeadingNode extends HeadingNode {
     exportJSON(): SerializedCustomHeadingNode {
         return {
             ...super.exportJSON(),
-            type: 'custom-heading'
+            tag: this.getTag(),
+            type: 'custom-heading',
+            version: 1
         };
     }
 
-    decorate(): JSX.Element {
-        return <HeadingDecorator nodeKey={this.getKey()} />;
-    }
+    // 方式有待商榷
+    // decorate(): JSX.Element {
+    //     return <HeadingDecorator nodeKey={this.getKey()} />;
+    // }
 }
 
 export function $createCustomHeadingNode(
