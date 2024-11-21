@@ -1,46 +1,54 @@
 'use client';
 
-import React from 'react';
-
-import { EditorState } from 'lexical';
-
+import { CodeNode } from '@lexical/code';
+import { LinkNode } from '@lexical/link';
+import { ListItemNode, ListNode } from '@lexical/list';
 import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
-import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
+
 import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin';
+import { HeadingNode, QuoteNode } from '@lexical/rich-text';
 
+import CustomEditorTheme from './themes/custom-editor-theme';
+
+import { CustomHeadingNode } from './nodes/custom-heading-node';
+import CustomMarkdownPlugin from './plugins/custom-markdown-plugin';
+import CustomOnChangePlugin from './plugins/custom-onChange-plugin';
 import CustomTextPlugin from './plugins/custom-text-plugin';
-import CustomTextTheme from './themes/custom-text-theme';
 
-const LexicalEditor: React.FC = () => {
-    const initialConfig = {
-        namespace: 'JzRM',
-        theme: CustomTextTheme,
-        onError: (error: Error) => {
-            console.error('Error:', error);
+const initialConfig = {
+    namespace: 'JzRM',
+    theme: CustomEditorTheme,
+    onError: (error: Error) => {
+        console.error('Error:', error);
+    },
+    nodes: [
+        CustomHeadingNode,
+        {
+            replace: HeadingNode,
+            with: (node: HeadingNode) => {
+                return new CustomHeadingNode(node.getTag());
+            },
+            withKlass: CustomHeadingNode
         },
-        nodes: []
-    };
+        QuoteNode,
+        ListNode,
+        ListItemNode,
+        CodeNode,
+        LinkNode
+    ]
+};
 
-    const handleChange = (editorState: EditorState) => {
-        editorState.read(() => {
-            console.log('state: ', editorState);
-
-            const node = editorState.toJSON();
-            console.log('node:', node);
-        });
-    };
-
+export default function LexicalEditor() {
     return (
         <LexicalComposer initialConfig={initialConfig}>
             <CustomTextPlugin />
+            <CustomMarkdownPlugin />
+            <CustomOnChangePlugin />
             <TabIndentationPlugin />
             <AutoFocusPlugin />
             <HistoryPlugin />
-            <OnChangePlugin onChange={handleChange} />
         </LexicalComposer>
     );
-};
-
-export default LexicalEditor;
+}
