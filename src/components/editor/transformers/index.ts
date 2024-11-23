@@ -1,4 +1,9 @@
-import { ElementTransformer, Transformer } from '@lexical/markdown';
+import {
+    ElementTransformer,
+    HEADING,
+    Transformer,
+    TRANSFORMERS
+} from '@lexical/markdown';
 import { HeadingTagType } from '@lexical/rich-text';
 import {
     $createCustomHeadingNode,
@@ -31,9 +36,11 @@ export const CustomHEADING: ElementTransformer = {
         const node = $createCustomHeadingNode(tag);
         node.append(...children);
         parentNode.replace(node);
-        node.select(0, 0);
+        node.selectEnd();
     },
     type: 'element'
 };
 
-export const CUSTOM_TRANSFORMERS: Array<Transformer> = [CustomHEADING];
+export const CUSTOM_TRANSFORMERS: Array<Transformer> = TRANSFORMERS.map(
+    (transformer) => (transformer === HEADING ? CustomHEADING : transformer)
+);
