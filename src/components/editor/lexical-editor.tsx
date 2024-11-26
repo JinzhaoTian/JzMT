@@ -18,7 +18,7 @@ import CustomOnChangePlugin from './plugins/custom-onChange-plugin';
 import CustomTextPlugin from './plugins/custom-text-plugin';
 
 const initialConfig = {
-    namespace: 'JzRM',
+    namespace: 'JzMT',
     theme: CustomEditorTheme,
     onError: (error: Error) => {
         console.error('Error:', error);
