@@ -6,6 +6,12 @@
     text-align: right;
 }
 
+.editor-markdown {
+    display: inline-block;
+    font-size: inherit;
+    color: #dd4a68;
+}
+
 .editor-paragraph {
     margin: 0;
     margin-bottom: 8px;

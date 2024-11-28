@@ -11,6 +11,12 @@ import {
 } from 'lexical';
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import {
+    $createHeadingNode,
+    $isHeadingNode,
+    HeadingTagType
+} from '@lexical/rich-text';
+import { $createMarkdownNode } from '../nodes/custom-markdown-node';
 
 export default function CustomMarkdownParser() {
     const [editor] = useLexicalComposerContext();
@@ -24,14 +30,10 @@ export default function CustomMarkdownParser() {
                 if (!$isRangeSelection(selection) || !selection.isCollapsed())
                     return false;
 
-                console.log('selection', selection);
-
                 const anchorKey = selection.anchor.key;
                 const anchorOffset = selection.anchor.offset;
 
                 const anchorNode = $getNodeByKey(anchorKey);
-
-                console.log('anchorNode', anchorNode);
 
                 if (!$isTextNode(anchorNode)) {
                     return false;
@@ -43,8 +45,6 @@ export default function CustomMarkdownParser() {
                     return false;
                 }
 
-                console.log('parentNode', parentNode);
-
                 const grandParentNode = parentNode.getParent();
 
                 if (
@@ -54,11 +54,39 @@ export default function CustomMarkdownParser() {
                     return false;
                 }
 
-                console.log('grandParentNode', grandParentNode);
-
                 const textContent = anchorNode.getTextContent();
 
-                console.log('textContent', textContent);
+                if (
+                    textContent.startsWith('# ') &&
+                    !$isHeadingNode(parentNode)
+                ) {
+                    const nextSiblings = anchorNode.getNextSiblings();
+                    const [leadingNode, remainderNode] =
+                        anchorNode.splitText(anchorOffset);
+                    leadingNode.remove();
+                    const siblings = remainderNode
+                        ? [remainderNode, ...nextSiblings]
+                        : nextSiblings;
+
+                    const tag = 'h1' as HeadingTagType;
+                    const node = $createHeadingNode(tag);
+
+                    /**
+                     * TODO
+                     * 1. 创建一个Markdown Tag节点，这个节点要有一定的样式（因此需要了解TextNode本身是否携带颜色等样式）
+                     * 2. 将TextNode插入到HeadingNode节点中
+                     * 3. 处理各种操作
+                     * 4. 处理输入法的问题
+                     */
+
+                    const mdtag = $createMarkdownNode('# ');
+
+                    node.append(mdtag);
+                    node.append(...siblings);
+
+                    parentNode.replace(node);
+                    node.select();
+                }
 
                 return false;
             },
