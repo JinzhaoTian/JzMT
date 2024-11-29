@@ -27,14 +27,15 @@ export default class MarkdownNode extends TextNode {
     }
 
     updateDOM(
-        prevNode: LexicalNode,
+        prevNode: TextNode,
         dom: HTMLElement,
         config: EditorConfig
     ): boolean {
+        const updated = super.updateDOM(prevNode, dom, config);
         if (prevNode !== this) {
             dom.style.fontSize = 'inherit';
         }
-        return false;
+        return updated;
     }
 
     static importJSON(serializedNode: SerializedTextNode): TextNode {
