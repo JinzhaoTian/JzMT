@@ -13,7 +13,7 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { $isHeadingNode } from '@lexical/rich-text';
 import { $isMarkdownNode } from '../nodes/custom-markdown-node';
 
-export default function CustomMarkdownListener() {
+export default function CustomMarkdownSelection() {
     const [editor] = useLexicalComposerContext();
     const [lastLineKey, setLastLineKey] = useState<string | null>(null);
 
@@ -21,8 +21,6 @@ export default function CustomMarkdownListener() {
         return editor.registerCommand(
             SELECTION_CHANGE_COMMAND,
             (payload: string) => {
-                console.log('payload:', payload);
-
                 const selection = editor.getEditorState().read($getSelection);
 
                 if (!$isRangeSelection(selection) || !selection.isCollapsed())
@@ -31,14 +29,13 @@ export default function CustomMarkdownListener() {
                 const anchorKey = selection.anchor.key;
                 const anchorOffset = selection.anchor.offset;
 
-                console.log('anchorKey:', anchorKey);
-                console.log('anchorOffset:', anchorOffset);
-
                 editor.update(() => {
                     const anchorNode = $getNodeByKey(anchorKey);
                     const parentNode = anchorNode?.getParent();
 
-                    const parentNodeKey = parentNode?.getKey();
+                    if (!parentNode) return;
+
+                    const parentNodeKey = parentNode.getKey();
 
                     if (lastLineKey === parentNodeKey) return;
 
@@ -46,7 +43,7 @@ export default function CustomMarkdownListener() {
                         const markdownNode = parentNode.getFirstChild();
 
                         if ($isMarkdownNode(markdownNode)) {
-                            markdownNode.setVisible(true);
+                            // TODO show
                         }
                     }
 
@@ -55,11 +52,12 @@ export default function CustomMarkdownListener() {
                         const markdownNode = lastNode.getFirstChild();
 
                         if ($isMarkdownNode(markdownNode)) {
-                            markdownNode.setVisible(false);
+                            // TODO hide
                         }
                     }
+
+                    setLastLineKey(parentNodeKey);
                 });
-                setLastLineKey(anchorKey);
 
                 return false;
             },

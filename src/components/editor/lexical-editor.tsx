@@ -10,9 +10,8 @@ import { HeadingNode, QuoteNode } from '@lexical/rich-text';
 import CustomEditorTheme from './themes/custom-editor-theme';
 
 import MarkdownNode from './nodes/custom-markdown-node';
-import CustomMarkdownListener from './plugins/custom-markdown-listener';
 import CustomMarkdownParser from './plugins/custom-markdown-parser';
-import CustomOnChangePlugin from './plugins/custom-onChange-plugin';
+import CustomMarkdownSelection from './plugins/custom-markdown-selection';
 import CustomTextPlugin from './plugins/custom-text-plugin';
 
 const initialConfig = {
@@ -37,8 +36,7 @@ export default function LexicalEditor() {
         <LexicalComposer initialConfig={initialConfig}>
             <CustomTextPlugin />
             <CustomMarkdownParser />
-            <CustomMarkdownListener />
-            <CustomOnChangePlugin />
+            <CustomMarkdownSelection />
         </LexicalComposer>
     );
 }
