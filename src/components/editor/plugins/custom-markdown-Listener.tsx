@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react';
 
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { $isHeadingNode } from '@lexical/rich-text';
 import {
     $getNodeByKey,
     $getSelection,
@@ -11,49 +9,62 @@ import {
     TextNode
 } from 'lexical';
 
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { $isHeadingNode } from '@lexical/rich-text';
+import { $isMarkdownNode } from '../nodes/custom-markdown-node';
+
 export default function CustomMarkdownListener() {
     const [editor] = useLexicalComposerContext();
     const [lastLineKey, setLastLineKey] = useState<string | null>(null);
 
     useEffect(() => {
-        // 注册命令：监听光标变化并更新Node
-        const unregisterSelectionChangeCommand = editor.registerCommand(
+        return editor.registerCommand(
             SELECTION_CHANGE_COMMAND,
-            () => {
+            (payload: string) => {
+                console.log('payload:', payload);
+
+                const selection = editor.getEditorState().read($getSelection);
+
+                if (!$isRangeSelection(selection) || !selection.isCollapsed())
+                    return false;
+
+                const anchorKey = selection.anchor.key;
+                const anchorOffset = selection.anchor.offset;
+
+                console.log('anchorKey:', anchorKey);
+                console.log('anchorOffset:', anchorOffset);
+
                 editor.update(() => {
-                    const selection = $getSelection();
-                    if (!$isRangeSelection(selection)) return;
+                    const anchorNode = $getNodeByKey(anchorKey);
+                    const parentNode = anchorNode?.getParent();
 
-                    const focus = selection.focus;
-
-                    // TODO: 当前输入行的处理
-
-                    if (!focus || !(focus.getNode() instanceof TextNode))
-                        return;
-
-                    const focusNode = focus.getNode();
-                    const parentNode = focusNode.getParent();
-
-                    if (!parentNode) return;
-
-                    const parentNodeKey = parentNode.getKey();
+                    const parentNodeKey = parentNode?.getKey();
 
                     if (lastLineKey === parentNodeKey) return;
 
-                    editor.update(() => $processCurrentNode(parentNodeKey));
+                    if ($isHeadingNode(parentNode)) {
+                        const markdownNode = parentNode.getFirstChild();
 
-                    editor.update(() => $processLastNode(lastLineKey));
+                        if ($isMarkdownNode(markdownNode)) {
+                            markdownNode.setVisible(true);
+                        }
+                    }
 
-                    setLastLineKey(parentNodeKey);
+                    const lastNode = $getNodeByKey(lastLineKey!);
+                    if ($isHeadingNode(lastNode)) {
+                        const markdownNode = lastNode.getFirstChild();
+
+                        if ($isMarkdownNode(markdownNode)) {
+                            markdownNode.setVisible(false);
+                        }
+                    }
                 });
+                setLastLineKey(anchorKey);
+
                 return false;
             },
             COMMAND_PRIORITY_LOW
         );
-
-        return () => {
-            unregisterSelectionChangeCommand(); // 清理注册命令
-        };
     }, [editor, lastLineKey]);
 
     return null;

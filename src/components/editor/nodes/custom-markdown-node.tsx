@@ -8,8 +8,11 @@ import {
 } from 'lexical';
 
 export default class MarkdownNode extends TextNode {
+    __visible: boolean;
+
     constructor(text: string, key?: NodeKey) {
         super(text, key);
+        this.__visible = true;
     }
 
     static getType() {
@@ -20,9 +23,14 @@ export default class MarkdownNode extends TextNode {
         return new MarkdownNode(node.__text, node.__key);
     }
 
+    setVisible(visible: boolean) {
+        this.__visible = visible;
+    }
+
     createDOM(config: EditorConfig, editor?: LexicalEditor): HTMLElement {
         const element = super.createDOM(config, editor);
         element.className = 'editor-markdown';
+        element.style.display = 'block';
         return element;
     }
 
@@ -35,6 +43,7 @@ export default class MarkdownNode extends TextNode {
         if (prevNode !== this) {
             dom.style.fontSize = 'inherit';
         }
+        dom.style.display = this.__visible ? 'block' : 'none';
         return updated;
     }
 

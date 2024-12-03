@@ -1,17 +1,10 @@
-import { HeadingNode, HeadingTagType } from '@lexical/rich-text';
-import {
-    EditorConfig,
-    LexicalNode,
-    SerializedElementNode,
-    Spread
-} from 'lexical';
+import { EditorConfig, LexicalNode } from 'lexical';
 
-export type SerializedCustomHeadingNode = Spread<
-    {
-        tag: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
-    },
-    SerializedElementNode
->;
+import {
+    HeadingNode,
+    HeadingTagType,
+    SerializedHeadingNode
+} from '@lexical/rich-text';
 
 export class CustomHeadingNode extends HeadingNode {
     static getType(): string {
@@ -28,18 +21,15 @@ export class CustomHeadingNode extends HeadingNode {
     }
 
     static importJSON(
-        serializedNode: SerializedCustomHeadingNode
+        serializedNode: SerializedHeadingNode
     ): CustomHeadingNode {
         const node = new CustomHeadingNode(serializedNode.tag);
         return node;
     }
 
-    exportJSON(): SerializedCustomHeadingNode {
+    exportJSON(): SerializedHeadingNode {
         return {
-            ...super.exportJSON(),
-            tag: this.getTag(),
-            type: 'customHeading',
-            version: 1
+            ...super.exportJSON()
         };
     }
 }
