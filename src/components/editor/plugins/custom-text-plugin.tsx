@@ -4,6 +4,8 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 
+import TreeViewPlugin from './treeview-plugin';
+
 export default function CustomTextPlugin() {
     const [editor] = useLexicalComposerContext();
 
@@ -33,6 +35,7 @@ export default function CustomTextPlugin() {
                     />
                 </div>
             </div>
+            <TreeViewPlugin />
         </ScrollArea>
     );
 }

@@ -12,7 +12,6 @@ import CustomEditorTheme from './themes/custom-editor-theme';
 import MarkdownNode from './nodes/custom-markdown-node';
 import CustomMarkdownParser from './plugins/custom-markdown-parser';
 import CustomTextPlugin from './plugins/custom-text-plugin';
-import TreeViewPlugin from './plugins/treeview-plugin';
 
 const initialConfig = {
     namespace: 'JzMT',
@@ -34,10 +33,7 @@ const initialConfig = {
 export default function LexicalEditor() {
     return (
         <LexicalComposer initialConfig={initialConfig}>
-            <div className="flex flex-row">
-                <CustomTextPlugin />
-                <TreeViewPlugin />
-            </div>
+            <CustomTextPlugin />
             <CustomMarkdownParser />
         </LexicalComposer>
     );

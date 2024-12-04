@@ -6,8 +6,6 @@ import {
     HeadingTagType
 } from '@lexical/rich-text';
 
-import { $createMarkdownNode } from '../nodes/custom-markdown-node';
-
 const ORDERED_LIST_REGEX = /^(\s*)(\d{1,})\.\s/;
 const UNORDERED_LIST_REGEX = /^(\s*)[-*+]\s/;
 const CHECK_LIST_REGEX = /^(\s*)(?:-\s)?\s?(\[(\s|x)?\])\s/i;
@@ -31,13 +29,8 @@ export const CustomHEADING: ElementTransformer = {
     replace: (parentNode, children, match) => {
         const tag = ('h' + match[1].length) as HeadingTagType;
         const node = $createHeadingNode(tag);
-
-        const mdtag = $createMarkdownNode('#');
-
-        node.append(mdtag);
         node.append(...children);
         parentNode.replace(node);
-        node.selectEnd();
     },
     type: 'element'
 };
