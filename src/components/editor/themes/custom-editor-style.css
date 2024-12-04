@@ -201,3 +201,12 @@
     display: inline-block;
     pointer-events: none;
 }
+
+.editor-tree-view-output {
+    display: block;
+    background: #222;
+    color: #fff;
+    padding: 0;
+    font-size: 12px;
+    overflow: auto;
+}
