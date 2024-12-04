@@ -9,7 +9,6 @@ import {
     TextNode
 } from 'lexical';
 
-import { $isCodeNode } from '@lexical/code';
 import {
     ElementTransformer,
     MultilineElementTransformer,
@@ -18,6 +17,11 @@ import {
 } from '@lexical/markdown';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 
+import { $isHeadingNode } from '@lexical/rich-text';
+import {
+    $createMarkdownNode,
+    $isMarkdownNode
+} from '../nodes/custom-markdown-node';
 import { CUSTOM_TRANSFORMERS } from '../transformers';
 import { indexBy, transformersByType } from '../utils';
 
@@ -52,10 +56,15 @@ export default function CustomMarkdownParser() {
                 const anchorKey = selection.anchor.key;
                 const anchorOffset = selection.anchor.offset;
 
+                const prevAnchorKey = prevSelection.anchor.key;
+                const prevAnchorOffset = prevSelection.anchor.offset;
+
                 const anchorNode = editorState._nodeMap.get(anchorKey);
+                const prevAnchorNode = editorState._nodeMap.get(prevAnchorKey);
 
                 if (
                     !$isTextNode(anchorNode) ||
+                    !$isTextNode(prevAnchorNode) ||
                     !dirtyLeaves.has(anchorKey) ||
                     (anchorOffset !== 1 &&
                         anchorOffset > prevSelection.anchor.offset + 1)
@@ -63,18 +72,11 @@ export default function CustomMarkdownParser() {
                     return;
                 }
 
-                editor.update(() => {
-                    // Markdown is not available inside code
-                    if (anchorNode.hasFormat('code')) {
-                        return;
-                    }
-
-                    const parentNode = anchorNode.getParent();
-
-                    if (parentNode === null || $isCodeNode(parentNode)) {
-                        return;
-                    }
-
+                const $transform = (
+                    parentNode: ElementNode,
+                    anchorNode: TextNode,
+                    anchorOffset: number
+                ) => {
                     if (
                         $runElementTransformers(
                             parentNode,
@@ -116,6 +118,54 @@ export default function CustomMarkdownParser() {
                     ) {
                         return;
                     }
+                };
+
+                const $syntaxHint = (
+                    prevAnchorNode: TextNode,
+                    prevParentNode: ElementNode,
+                    anchorNode: TextNode,
+                    parentNode: ElementNode
+                ) => {
+                    if ($isMarkdownNode(prevAnchorNode)) {
+                        if (prevParentNode != null) {
+                            const nextSiblings =
+                                prevAnchorNode.getNextSiblings();
+
+                            prevParentNode.clear();
+                            prevParentNode.append(...nextSiblings);
+                        }
+                    }
+
+                    if (
+                        $isHeadingNode(anchorNode) &&
+                        !$isMarkdownNode(anchorNode.getFirstChild())
+                    ) {
+                        const nextSiblings = anchorNode.getNextSiblings();
+
+                        parentNode.clear();
+
+                        const markdownNode = $createMarkdownNode('#');
+                        parentNode.append(markdownNode);
+                        parentNode.append(...nextSiblings);
+                    }
+                };
+
+                editor.update(() => {
+                    const parentNode = anchorNode.getParent();
+                    const prevParentNode = prevAnchorNode.getParent();
+
+                    if (parentNode === null || prevParentNode === null) {
+                        return;
+                    }
+
+                    $transform(parentNode, anchorNode, selection.anchor.offset);
+
+                    // $syntaxHint(
+                    //     prevAnchorNode,
+                    //     prevParentNode,
+                    //     anchorNode,
+                    //     parentNode
+                    // );
                 });
             }
         );

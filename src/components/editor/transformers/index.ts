@@ -1,10 +1,12 @@
 import { ElementTransformer, Transformer } from '@lexical/markdown';
-import { HeadingTagType } from '@lexical/rich-text';
 import {
-    $createCustomHeadingNode,
-    $isCustomHeadingNode,
-    CustomHeadingNode
-} from '../nodes/custom-heading-node';
+    $createHeadingNode,
+    $isHeadingNode,
+    HeadingNode,
+    HeadingTagType
+} from '@lexical/rich-text';
+
+import { $createMarkdownNode } from '../nodes/custom-markdown-node';
 
 const ORDERED_LIST_REGEX = /^(\s*)(\d{1,})\.\s/;
 const UNORDERED_LIST_REGEX = /^(\s*)[-*+]\s/;
@@ -17,9 +19,9 @@ const CODE_SINGLE_LINE_REGEX =
     /^[ \t]*```[^`]+(?:(?:`{1,2}|`{4,})[^`]+)*```(?:[^`]|$)/;
 
 export const CustomHEADING: ElementTransformer = {
-    dependencies: [CustomHeadingNode],
+    dependencies: [HeadingNode],
     export: (node, exportChildren) => {
-        if (!$isCustomHeadingNode(node)) {
+        if (!$isHeadingNode(node)) {
             return null;
         }
         const level = Number(node.getTag().slice(1));
@@ -28,7 +30,11 @@ export const CustomHEADING: ElementTransformer = {
     regExp: HEADING_REGEX,
     replace: (parentNode, children, match) => {
         const tag = ('h' + match[1].length) as HeadingTagType;
-        const node = $createCustomHeadingNode(tag);
+        const node = $createHeadingNode(tag);
+
+        const mdtag = $createMarkdownNode('#');
+
+        node.append(mdtag);
         node.append(...children);
         parentNode.replace(node);
         node.selectEnd();
