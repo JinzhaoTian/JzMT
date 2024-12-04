@@ -1,90 +1,120 @@
 import { useEffect } from 'react';
 
 import {
-    $getNodeByKey,
     $getSelection,
     $isRangeSelection,
     $isRootOrShadowRoot,
-    $isTextNode
+    $isTextNode,
+    ElementNode,
+    TextNode
 } from 'lexical';
 
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { $isCodeNode } from '@lexical/code';
 import {
-    $createHeadingNode,
-    $isHeadingNode,
-    HeadingTagType
-} from '@lexical/rich-text';
-import { $createMarkdownNode } from '../nodes/custom-markdown-node';
+    ElementTransformer,
+    MultilineElementTransformer,
+    TextFormatTransformer,
+    TextMatchTransformer
+} from '@lexical/markdown';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+
+import { CUSTOM_TRANSFORMERS } from '../transformers';
+import { indexBy, transformersByType } from '../utils';
 
 export default function CustomMarkdownParser() {
     const [editor] = useLexicalComposerContext();
 
     useEffect(() => {
+        const byType = transformersByType(CUSTOM_TRANSFORMERS);
+        const textMatchTransformersByTrigger = indexBy(
+            byType.textMatch,
+            ({ trigger }) => trigger
+        );
+        const textFormatTransformersByTrigger = indexBy(
+            byType.textFormat,
+            ({ tag }) => tag[tag.length - 1]
+        );
+
         return editor.registerUpdateListener(
             ({ tags, dirtyLeaves, editorState, prevEditorState }) => {
                 const selection = editorState.read($getSelection);
                 const prevSelection = prevEditorState.read($getSelection);
 
-                if (!$isRangeSelection(selection) || !selection.isCollapsed())
+                if (
+                    !$isRangeSelection(prevSelection) ||
+                    !$isRangeSelection(selection) ||
+                    !selection.isCollapsed() ||
+                    selection.is(prevSelection)
+                ) {
                     return;
+                }
 
                 const anchorKey = selection.anchor.key;
                 const anchorOffset = selection.anchor.offset;
 
-                editor.update(() => {
-                    const anchorNode = $getNodeByKey(anchorKey);
+                const anchorNode = editorState._nodeMap.get(anchorKey);
 
-                    if (!$isTextNode(anchorNode)) {
+                if (
+                    !$isTextNode(anchorNode) ||
+                    !dirtyLeaves.has(anchorKey) ||
+                    (anchorOffset !== 1 &&
+                        anchorOffset > prevSelection.anchor.offset + 1)
+                ) {
+                    return;
+                }
+
+                editor.update(() => {
+                    // Markdown is not available inside code
+                    if (anchorNode.hasFormat('code')) {
                         return;
                     }
 
                     const parentNode = anchorNode.getParent();
 
-                    if (parentNode === null) {
+                    if (parentNode === null || $isCodeNode(parentNode)) {
                         return;
                     }
 
-                    const grandParentNode = parentNode.getParent();
-
                     if (
-                        !$isRootOrShadowRoot(grandParentNode) ||
-                        parentNode.getFirstChild() !== anchorNode
+                        $runElementTransformers(
+                            parentNode,
+                            anchorNode,
+                            anchorOffset,
+                            byType.element
+                        )
                     ) {
                         return;
                     }
 
-                    const textContent = anchorNode.getTextContent();
+                    if (
+                        $runMultilineElementTransformers(
+                            parentNode,
+                            anchorNode,
+                            anchorOffset,
+                            byType.multilineElement
+                        )
+                    ) {
+                        return;
+                    }
 
                     if (
-                        textContent.startsWith('# ') &&
-                        !$isHeadingNode(parentNode)
+                        $runTextMatchTransformers(
+                            anchorNode,
+                            anchorOffset,
+                            textMatchTransformersByTrigger
+                        )
                     ) {
-                        const nextSiblings = anchorNode.getNextSiblings();
-                        const newText = anchorNode
-                            .getTextContent()
-                            .replace(/^#\s*/, ' ');
-                        anchorNode.setTextContent(newText);
+                        return;
+                    }
 
-                        const siblings = [anchorNode, ...nextSiblings];
-
-                        const tag = 'h1' as HeadingTagType;
-                        const node = $createHeadingNode(tag);
-
-                        /**
-                         * TODO
-                         * 1. 创建一个Markdown Tag节点，这个节点要有一定的样式（因此需要了解TextNode本身是否携带颜色等样式）
-                         * 2. 将TextNode插入到HeadingNode节点中
-                         * 3. 处理各种操作
-                         * 4. 处理输入法的问题
-                         */
-
-                        const mdtag = $createMarkdownNode('#');
-
-                        node.append(mdtag);
-                        node.append(...siblings);
-
-                        parentNode.replace(node);
-                        node.select(); // TODO: 光标调整
+                    if (
+                        $runTextFormatTransformers(
+                            anchorNode,
+                            anchorOffset,
+                            textFormatTransformersByTrigger
+                        )
+                    ) {
+                        return;
                     }
                 });
             }
@@ -92,4 +122,73 @@ export default function CustomMarkdownParser() {
     }, [editor]);
 
     return null;
+}
+
+function $runElementTransformers(
+    parentNode: ElementNode,
+    anchorNode: TextNode,
+    anchorOffset: number,
+    elementTransformers: ReadonlyArray<ElementTransformer>
+): boolean {
+    const grandParentNode = parentNode.getParent();
+
+    if (!$isRootOrShadowRoot(grandParentNode)) {
+        return false;
+    }
+
+    const textContent = anchorNode.getTextContent();
+
+    if (textContent[anchorOffset - 1] !== ' ') {
+        return false;
+    }
+
+    for (const { regExp, replace } of elementTransformers) {
+        const match = textContent.match(regExp);
+
+        if (
+            match &&
+            match[0].length ===
+                (match[0].endsWith(' ') ? anchorOffset : anchorOffset - 1)
+        ) {
+            const nextSiblings = anchorNode.getNextSiblings();
+            const [leadingNode, remainderNode] =
+                anchorNode.splitText(anchorOffset);
+            leadingNode.remove();
+            const siblings = remainderNode
+                ? [remainderNode, ...nextSiblings]
+                : nextSiblings;
+            if (replace(parentNode, siblings, match, false) !== false) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+function $runMultilineElementTransformers(
+    parentNode: ElementNode,
+    anchorNode: TextNode,
+    anchorOffset: number,
+    elementTransformers: ReadonlyArray<MultilineElementTransformer>
+): boolean {
+    return false;
+}
+
+function $runTextMatchTransformers(
+    anchorNode: TextNode,
+    anchorOffset: number,
+    transformersByTrigger: Readonly<Record<string, Array<TextMatchTransformer>>>
+): boolean {
+    return false;
+}
+
+function $runTextFormatTransformers(
+    anchorNode: TextNode,
+    anchorOffset: number,
+    textFormatTransformers: Readonly<
+        Record<string, ReadonlyArray<TextFormatTransformer>>
+    >
+): boolean {
+    return false;
 }
