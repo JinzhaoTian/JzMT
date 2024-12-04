@@ -11,7 +11,6 @@ import CustomEditorTheme from './themes/custom-editor-theme';
 
 import MarkdownNode from './nodes/custom-markdown-node';
 import CustomMarkdownParser from './plugins/custom-markdown-parser';
-import CustomMarkdownSelection from './plugins/custom-markdown-selection';
 import CustomTextPlugin from './plugins/custom-text-plugin';
 import TreeViewPlugin from './plugins/treeview-plugin';
 
@@ -40,7 +39,6 @@ export default function LexicalEditor() {
                 <TreeViewPlugin />
             </div>
             <CustomMarkdownParser />
-            <CustomMarkdownSelection />
         </LexicalComposer>
     );
 }
