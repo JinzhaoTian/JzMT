@@ -8,7 +8,6 @@
 
 .editor-markdown {
     display: inline-block;
-    font-size: inherit;
     color: #dd4a68;
 }
 
@@ -55,6 +54,24 @@
 
 .editor-heading-h6 {
     font-size: 15px;
+}
+
+.editor-heading-h1 .editor-markdown,
+.editor-heading-h2 .editor-markdown,
+.editor-heading-h3 .editor-markdown,
+.editor-heading-h4 .editor-markdown,
+.editor-heading-h5 .editor-markdown,
+.editor-heading-h6 .editor-markdown {
+    display: none;
+}
+
+.editor-heading-h1.showSubNode .editor-markdown,
+.editor-heading-h2.showSubNode .editor-markdown,
+.editor-heading-h3.showSubNode .editor-markdown,
+.editor-heading-h4.showSubNode .editor-markdown,
+.editor-heading-h5.showSubNode .editor-markdown,
+.editor-heading-h6.showSubNode .editor-markdown {
+    display: inline-block;
 }
 
 .editor-nested-listitem {
