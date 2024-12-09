@@ -3,9 +3,12 @@
 import { CodeNode } from '@lexical/code';
 import { LinkNode } from '@lexical/link';
 import { ListItemNode, ListNode } from '@lexical/list';
+import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { HorizontalRuleNode } from '@lexical/react/LexicalHorizontalRuleNode';
+import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
 import { ListPlugin } from '@lexical/react/LexicalListPlugin';
+import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin';
 import { HeadingNode, QuoteNode } from '@lexical/rich-text';
 
 import CustomEditorTheme from './themes/custom-editor-theme';
@@ -37,7 +40,10 @@ export default function LexicalEditor() {
         <LexicalComposer initialConfig={initialConfig}>
             <CustomTextPlugin />
             <CustomMarkdownParser />
+            <AutoFocusPlugin />
+            <LinkPlugin />
             <ListPlugin />
+            <TabIndentationPlugin />
         </LexicalComposer>
     );
 }
