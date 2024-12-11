@@ -9,6 +9,7 @@ import {
     $isTextNode,
     $setSelection,
     ElementNode,
+    LexicalEditor,
     TextNode
 } from 'lexical';
 
@@ -19,12 +20,7 @@ import {
     TextMatchTransformer
 } from '@lexical/markdown';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { $isHeadingNode } from '@lexical/rich-text';
 
-import {
-    $createMarkdownNode,
-    $isMarkdownNode
-} from '../nodes/custom-markdown-node';
 import { CUSTOM_TRANSFORMERS } from '../transformers';
 import { indexBy, transformersByType } from '../utils';
 
@@ -32,158 +28,116 @@ export default function CustomMarkdownParser() {
     const [editor] = useLexicalComposerContext();
 
     useEffect(() => {
-        const byType = transformersByType(CUSTOM_TRANSFORMERS);
-        const textMatchTransformersByTrigger = indexBy(
-            byType.textMatch,
-            ({ trigger }) => trigger
-        );
-        const textFormatTransformersByTrigger = indexBy(
-            byType.textFormat,
-            ({ tag }) => tag[tag.length - 1]
-        );
-
-        return editor.registerUpdateListener(
-            ({ tags, dirtyLeaves, editorState, prevEditorState }) => {
-                const selection = editorState.read($getSelection);
-                const prevSelection = prevEditorState.read($getSelection);
-
-                if (
-                    !$isRangeSelection(prevSelection) ||
-                    !$isRangeSelection(selection) ||
-                    !selection.isCollapsed() ||
-                    selection.is(prevSelection)
-                ) {
-                    return;
-                }
-
-                const anchorKey = selection.anchor.key;
-                const anchorOffset = selection.anchor.offset;
-
-                const prevAnchorKey = prevSelection.anchor.key;
-                const prevAnchorOffset = prevSelection.anchor.offset;
-
-                const anchorNode = editorState._nodeMap.get(anchorKey);
-                const prevAnchorNode = editorState._nodeMap.get(prevAnchorKey);
-
-                /** 转化模式：
-                 *      1. 当前是 Text Node -> 检测是否符合 markdown 语法
-                 *          1. 是 -> 转化
-                 *      2. 当前是指定 Node -> 添加 markdown 语法文本
-                 *          1. 改变语法文本 -> 转化为新的 Node
-                 *          2. 保持语法文本 -> 继续输入
-                 *          3. 移出节点 -> 移除 markdown 语法文本
-                 */
-
-                if (
-                    !$isTextNode(anchorNode) ||
-                    !$isTextNode(prevAnchorNode) ||
-                    !dirtyLeaves.has(anchorKey) ||
-                    (anchorOffset !== 1 &&
-                        anchorOffset > prevSelection.anchor.offset + 1)
-                ) {
-                    return;
-                }
-
-                const $transform = (
-                    parentNode: ElementNode,
-                    anchorNode: TextNode,
-                    anchorOffset: number
-                ) => {
-                    if (
-                        $runElementTransformers(
-                            parentNode,
-                            anchorNode,
-                            anchorOffset,
-                            byType.element
-                        )
-                    ) {
-                        return;
-                    }
-
-                    if (
-                        $runMultilineElementTransformers(
-                            parentNode,
-                            anchorNode,
-                            anchorOffset,
-                            byType.multilineElement
-                        )
-                    ) {
-                        return;
-                    }
-
-                    if (
-                        $runTextMatchTransformers(
-                            anchorNode,
-                            anchorOffset,
-                            textMatchTransformersByTrigger
-                        )
-                    ) {
-                        return;
-                    }
-
-                    if (
-                        $runTextFormatTransformers(
-                            anchorNode,
-                            anchorOffset,
-                            textFormatTransformersByTrigger
-                        )
-                    ) {
-                        return;
-                    }
-                };
-
-                const $syntaxHint = (
-                    prevAnchorNode: TextNode,
-                    prevParentNode: ElementNode,
-                    anchorNode: TextNode,
-                    parentNode: ElementNode
-                ) => {
-                    if ($isMarkdownNode(prevAnchorNode)) {
-                        if (prevParentNode != null) {
-                            const nextSiblings =
-                                prevAnchorNode.getNextSiblings();
-
-                            prevParentNode.clear();
-                            prevParentNode.append(...nextSiblings);
-                        }
-                    }
-
-                    if (
-                        $isHeadingNode(anchorNode) &&
-                        !$isMarkdownNode(anchorNode.getFirstChild())
-                    ) {
-                        const nextSiblings = anchorNode.getNextSiblings();
-
-                        parentNode.clear();
-
-                        const markdownNode = $createMarkdownNode('#');
-                        parentNode.append(markdownNode);
-                        parentNode.append(...nextSiblings);
-                    }
-                };
-
-                editor.update(() => {
-                    const parentNode = anchorNode.getParent();
-                    const prevParentNode = prevAnchorNode.getParent();
-
-                    if (parentNode === null || prevParentNode === null) {
-                        return;
-                    }
-
-                    $transform(parentNode, anchorNode, selection.anchor.offset);
-
-                    // $syntaxHint(
-                    //     prevAnchorNode,
-                    //     prevParentNode,
-                    //     anchorNode,
-                    //     parentNode
-                    // );
-                });
-            }
-        );
+        return registerMarkdownParser(editor);
     }, [editor]);
 
     return null;
+}
+
+function registerMarkdownParser(editor: LexicalEditor): () => void {
+    const byType = transformersByType(CUSTOM_TRANSFORMERS);
+    const textMatchTransformersByTrigger = indexBy(
+        byType.textMatch,
+        ({ trigger }) => trigger
+    );
+    const textFormatTransformersByTrigger = indexBy(
+        byType.textFormat,
+        ({ tag }) => tag[tag.length - 1]
+    );
+
+    return editor.registerUpdateListener(
+        ({ tags, dirtyLeaves, editorState, prevEditorState }) => {
+            const selection = editorState.read($getSelection);
+            const prevSelection = prevEditorState.read($getSelection);
+
+            if (
+                !$isRangeSelection(prevSelection) ||
+                !$isRangeSelection(selection) ||
+                !selection.isCollapsed() ||
+                selection.is(prevSelection)
+            ) {
+                return;
+            }
+
+            const anchorKey = selection.anchor.key;
+            const anchorOffset = selection.anchor.offset;
+
+            const prevAnchorKey = prevSelection.anchor.key;
+            const prevAnchorOffset = prevSelection.anchor.offset;
+
+            const anchorNode = editorState._nodeMap.get(anchorKey);
+            const prevAnchorNode = editorState._nodeMap.get(prevAnchorKey);
+
+            if (
+                !$isTextNode(anchorNode) ||
+                !$isTextNode(prevAnchorNode) ||
+                !dirtyLeaves.has(anchorKey) ||
+                (anchorOffset !== 1 &&
+                    anchorOffset > prevSelection.anchor.offset + 1)
+            ) {
+                return;
+            }
+
+            const $transform = (
+                parentNode: ElementNode,
+                anchorNode: TextNode,
+                anchorOffset: number
+            ) => {
+                if (
+                    $runElementTransformers(
+                        parentNode,
+                        anchorNode,
+                        anchorOffset,
+                        byType.element
+                    )
+                ) {
+                    return;
+                }
+
+                if (
+                    $runMultilineElementTransformers(
+                        parentNode,
+                        anchorNode,
+                        anchorOffset,
+                        byType.multilineElement
+                    )
+                ) {
+                    return;
+                }
+
+                if (
+                    $runTextMatchTransformers(
+                        anchorNode,
+                        anchorOffset,
+                        textMatchTransformersByTrigger
+                    )
+                ) {
+                    return;
+                }
+
+                if (
+                    $runTextFormatTransformers(
+                        anchorNode,
+                        anchorOffset,
+                        textFormatTransformersByTrigger
+                    )
+                ) {
+                    return;
+                }
+            };
+
+            editor.update(() => {
+                const parentNode = anchorNode.getParent();
+                const prevParentNode = prevAnchorNode.getParent();
+
+                if (parentNode === null || prevParentNode === null) {
+                    return;
+                }
+
+                $transform(parentNode, anchorNode, selection.anchor.offset);
+            });
+        }
+    );
 }
 
 function $runElementTransformers(
