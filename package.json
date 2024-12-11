@@ -1,5 +1,5 @@
 {
-    "name": "jzrm",
+    "name": "jzmt",
     "version": "0.1.0",
     "private": true,
     "scripts": {
@@ -60,6 +60,7 @@
         "@commitlint/cli": "^19.5.0",
         "@commitlint/config-conventional": "^19.5.0",
         "@commitlint/types": "^19.5.0",
+        "@lexical/eslint-plugin": "^0.20.0",
         "@types/lint-staged": "^13.3.0",
         "@types/node": "^20",
         "@types/react": "^18",

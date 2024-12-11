@@ -1,6 +1,6 @@
-# JzRM
+# JzMT
 
-A remote markdown note software in web.
+An Out of The Box Markdown noTe in Web.
 
 ## Getting Started
 
