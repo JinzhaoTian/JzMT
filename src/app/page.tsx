@@ -3,11 +3,11 @@ import LexicalEditor from '@/components/editor/lexical-editor';
 export default function Home() {
     return (
         <main className="flex flex-col items-center h-full w-full">
-            <div className="sticky top-0 flex justify-between items-center h-16 w-full border border-green-200 bg-gray-200 p-4" />
-            <div className="h-[calc(100vh-6rem)] w-full overflow-hidden border border-red-200">
+            <div className="bg-background sticky top-0 h-14 w-full border-b" />
+            <div className="h-[calc(100vh-6rem)] w-full overflow-hidden">
                 <LexicalEditor />
             </div>
-            <div className="h-8 w-full border border-green-200 bg-gray-100" />
+            <div className="bg-background sticky bottom-0 h-10 w-full border-t" />
         </main>
     );
 }
