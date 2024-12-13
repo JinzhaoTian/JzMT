@@ -1,4 +1,9 @@
 {
+    // The default end of line character.
+    //  - \n: LF
+    //  - \r\n: CRLF
+    //  - auto: Uses operating system specific end of line character.
+    "files.eol": "\n",
     // Formatting using Prettier by default for all languages
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true,
